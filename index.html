@@ -37,7 +37,6 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -52,7 +51,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(156, 163, 175, 0.6);
         }
-        /* Glassmorphism utility */
         .glass {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
@@ -63,7 +61,6 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
-        /* Markdown style tweaks */
         .prose pre {
             background-color: #1e293b !important;
             padding: 1rem;
@@ -91,6 +88,24 @@
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col md:flex-row transition-colors duration-200">
+
+    <!-- 首次開啟警示彈窗 (Disclaimer Modal) -->
+    <div id="noticeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 transform transition-all scale-100">
+            <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/50 text-amber-500 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">系統提示</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300 font-medium">
+                    ⚠️⚠️⚠️沙沙AI有可能出錯，請查證❗❗❗
+                </p>
+            </div>
+            <button onclick="closeNoticeModal()" class="w-full py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium rounded-xl transition-all shadow-md active:scale-95">
+                確認
+            </button>
+        </div>
+    </div>
 
     <!-- Sidebar Navigation -->
     <aside class="w-full md:w-64 bg-white/80 dark:bg-gray-800/80 border-r border-gray-200 dark:border-gray-700 flex flex-col justify-between shrink-0 glass z-20">
@@ -267,9 +282,7 @@
 
                 <!-- Tool Work Area -->
                 <div id="toolWorkspace" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-sm space-y-6">
-                    <div id="toolHeader">
-                        <!-- Dynamic Tool Title & Control -->
-                    </div>
+                    <div id="toolHeader"></div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <!-- Input Section -->
@@ -300,7 +313,7 @@
             </div>
         </section>
 
-        <!-- TAB 3: HISTORY & SAVED PROMPTS -->
+        <!-- TAB 3: HISTORY -->
         <section id="tab-history" class="tab-content flex-1 hidden overflow-y-auto p-6">
             <div class="max-w-4xl mx-auto space-y-6">
                 <div class="flex justify-between items-center">
@@ -314,7 +327,6 @@
                 </div>
 
                 <div id="historyList" class="space-y-4">
-                    <!-- Dynamic History Items -->
                     <div class="text-center py-12 text-gray-400">
                         <i class="fa-solid fa-box-open text-4xl mb-3"></i>
                         <p>目前尚無儲存的歷史紀錄</p>
@@ -325,15 +337,16 @@
 
     </main>
 
-    <!-- Application Logic Script -->
     <script>
-        // State Management
         let currentTab = 'chat';
         let chatHistory = [];
         let toolHistory = JSON.parse(localStorage.getItem('shasha_tool_history') || '[]');
         let currentTool = 'polish';
 
-        // Predefined Tool Configurations
+        function closeNoticeModal() {
+            document.getElementById('noticeModal').classList.add('hidden');
+        }
+
         const toolConfigs = {
             polish: {
                 title: '文字潤飾與翻譯',
@@ -425,7 +438,6 @@
             }
         };
 
-        // Update Math input placeholder dynamically based on mode
         function updateMathInputPlaceholder() {
             const mode = document.getElementById('toolMathMode')?.value;
             const inputEl = document.getElementById('toolInput');
@@ -444,20 +456,17 @@
             }
         }
 
-        // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
             initTheme();
             selectTool('polish');
             renderHistory();
 
-            // Auto-resize chat textarea
             const chatInput = document.getElementById('chatInput');
             chatInput.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
             });
 
-            // Enter key to send chat
             chatInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -466,7 +475,6 @@
             });
         });
 
-        // Theme Toggle
         function initTheme() {
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 document.documentElement.classList.add('dark');
@@ -476,7 +484,6 @@
             });
         }
 
-        // Tab Switching
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -492,18 +499,16 @@
             activeNav.classList.remove('text-gray-600', 'dark:text-gray-300');
         }
 
-        // --- SIMULATION ENGINE (No API Needed) ---
         function getSimulatedChatResponse(input) {
             const lower = input.toLowerCase();
 
             if (lower.includes('你好') || lower.includes('hi') || lower.includes('hello') || lower.includes('哈囉') || lower.includes('嗨')) {
-                return `你好呀！我是 **沙沙AI** 🌸！很高興能和你聊天，今天有什麼我可以幫忙的嗎？`;
+                return `你好呀！我是沙沙AI！很高興能和你聊天，今天有什麼我可以幫忙的嗎？`;
             }
             if (lower.includes('程式碼') || lower.includes('code') || lower.includes('python') || lower.includes('javascript') || lower.includes('html')) {
                 return `沒問題！這是沙沙AI為你準備的 JavaScript 時間處理實用範例：
 
 \`\`\`javascript
-// 沙沙AI 提供的取得當前時間格式化函式
 function getFormattedTime() {
     const now = new Date();
     return now.toLocaleString('zh-TW', { 
@@ -539,7 +544,7 @@ console.log("現在時間是：", getFormattedTime());
 - ✍️ **文字潤飾與翻譯**：多國語言流暢轉換。
 - 📝 **長文精華摘要**：快節奏掌握核心要點。
 - 💻 **程式碼小幫手**：撰寫範例與邏輯說明。
-- 🎨 **創意社群文案**：自動生成熱門貼文標題。
+- 🧮 **數學計算工具**：方程式求解與統計計算。
 
 隨時點擊左側的工具選單體驗吧！`;
             }
@@ -548,43 +553,31 @@ console.log("現在時間是：", getFormattedTime());
 
 1. **掌握關鍵方向**：明確想要達成的具體目標。
 2. **分步驟執行**：將任務拆解為幾個小階段，逐步完成。
-3. **靈活微調**：過程中持續檢視成果，隨時進行優化。
-
-你可以嘗試使用左側的「**快捷工具庫**」進行深度的文案生成或摘要分析喔！`;
+3. **靈活微調**：過程中持續檢視成果，隨時進行優化。`;
         }
 
-        // Quick Send Action
         function quickSend(text) {
             document.getElementById('chatInput').value = text;
             document.getElementById('chatForm').requestSubmit();
         }
 
-        // --- TAB 1: CHAT FUNCTIONALITY ---
         async function handleChatSubmit(e) {
             e.preventDefault();
             const inputEl = document.getElementById('chatInput');
             const userMsg = inputEl.value.trim();
             if (!userMsg) return;
 
-            // Clear input
             inputEl.value = '';
             inputEl.style.height = 'auto';
 
-            // Append User Message
             appendChatMessage('user', userMsg);
-
-            // Append Loading Indicator
             const loadingId = appendChatMessage('ai', '<i class="fa-solid fa-spinner fa-spin"></i> 沙沙AI 正在思考中...', true);
 
-            // Simulate Network / AI Response Delay
             setTimeout(() => {
                 const aiResponse = getSimulatedChatResponse(userMsg);
-
-                // Remove Loading & Render Response
                 removeChatMessage(loadingId);
                 appendChatMessage('ai', aiResponse);
 
-                // Save to history state
                 chatHistory.push({ role: 'user', text: userMsg });
                 chatHistory.push({ role: 'ai', text: aiResponse });
             }, 500);
@@ -621,7 +614,6 @@ console.log("現在時間是：", getFormattedTime());
             container.insertAdjacentHTML('beforeend', msgHtml);
             container.scrollTop = container.scrollHeight;
 
-            // Highlight code blocks
             document.querySelectorAll('#' + msgId + ' pre code').forEach((block) => {
                 hljs.highlightElement(block);
             });
@@ -672,37 +664,30 @@ console.log("現在時間是：", getFormattedTime());
             URL.revokeObjectURL(url);
         }
 
-        // --- TAB 2: TOOLS FUNCTIONALITY ---
         function selectTool(toolKey) {
             currentTool = toolKey;
             const config = toolConfigs[toolKey];
 
-            // Update tab button styles
             document.querySelectorAll('.tool-card').forEach(btn => {
                 btn.classList.remove('ring-2', 'ring-pink-500', 'border-transparent');
             });
             document.getElementById(`tool-btn-${toolKey}`).classList.add('ring-2', 'ring-pink-500', 'border-transparent');
 
-            // Render Header & Controls
             const toolHeader = document.getElementById('toolHeader');
             toolHeader.innerHTML = `
                 <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">${config.title}</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">${config.desc}</p>
-                ${config.controls}
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">${config.desc}</p>${config.controls}
             `;
 
-            // Update input placeholder for math tool
             if (toolKey === 'math') {
                 updateMathInputPlaceholder();
             } else {
                 document.getElementById('toolInput').placeholder = "請在此貼上內容或輸入需求...";
             }
 
-            // Reset Output
             document.getElementById('toolOutput').innerHTML = `<span class="text-gray-400 italic">結果將顯示於此...</span>`;
         }
 
-        // Local Safe Math Solver
         function solveMathTask(mode, input) {
             input = input.trim();
             if (mode === 'quadratic') {
@@ -732,11 +717,10 @@ console.log("現在時間是：", getFormattedTime());
                     const realPart = (-b / (2 * a)).toFixed(4);
                     const imagPart = (Math.sqrt(-delta) / (2 * a)).toFixed(4);
                     steps += `2. $D < 0$，代表無實數解，但有一對共軛複數解。\n\n`;
-                    steps += `✨ **最終解答 (複數域)：**\n- **x₁ = ${realPart} + ${imagPart}i**\n- **x₂ = ${realPart} - ${imagPart}i**`;
+                    steps += `✨ **最終解答 (複數域)：**\n- **x₁ = ${realPart} +${imagPart}i**\n- **x₂ = ${realPart} -${imagPart}i**`;
                 }
                 return steps;
             } 
-            
             else if (mode === 'stats') {
                 const nums = input.split(/[,,\s]+/).map(Number).filter(n => !isNaN(n));
                 if (nums.length === 0) {
@@ -748,7 +732,6 @@ console.log("現在時間是：", getFormattedTime());
                 const sum = nums.reduce((acc, val) => acc + val, 0);
                 const mean = sum / n;
 
-                // Median
                 let median = 0;
                 if (n % 2 === 0) {
                     median = (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
@@ -756,7 +739,6 @@ console.log("現在時間是：", getFormattedTime());
                     median = sorted[Math.floor(n / 2)];
                 }
 
-                // Mode
                 const freq = {};
                 let maxFreq = 0;
                 nums.forEach(num => {
@@ -765,7 +747,6 @@ console.log("現在時間是：", getFormattedTime());
                 });
                 const modes = Object.keys(freq).filter(key => freq[key] === maxFreq).map(Number);
 
-                // Standard Deviation
                 const variance = nums.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / n;
                 const stdDev = Math.sqrt(variance);
 
@@ -779,7 +760,6 @@ console.log("現在時間是：", getFormattedTime());
                        `- **標準差 (Std Dev):** \`${stdDev.toFixed(4)}\` (變異數 = ${variance.toFixed(4)})\n` +
                        `- **最小值 (Min):** \`${sorted[0]}\` | **最大值 (Max):** \`${sorted[n - 1]}\` | **全距 (Range):** \`${sorted[n - 1] - sorted[0]}\``;
             } 
-            
             else if (mode === 'geometry') {
                 const lower = input.toLowerCase();
                 if (lower.includes('圓') || lower.includes('radius') || lower.includes('r=')) {
@@ -808,7 +788,6 @@ console.log("現在時間是：", getFormattedTime());
                     return `### 📐 幾何算式預設範例 (圓形半徑 5)\n\n- **面積:** \`${(Math.PI * 25).toFixed(4)}\` \n- **周長:** \`${(2 * Math.PI * 5).toFixed(4)}\` \n\n*💡 提示：你可以直接輸入「矩形 width=10, height=5」或「球體 radius=4」來進行精確運算喔！*`;
                 }
             } 
-            
             else if (mode === 'conversion') {
                 const lower = input.toLowerCase();
                 const numMatch = input.match(/-?[\d.]+/);
@@ -833,10 +812,8 @@ console.log("現在時間是：", getFormattedTime());
                 }
                 return res;
             } 
-            
-            else { // Custom Expression
+            else {
                 try {
-                    // Safe evaluation restricting dangerous JS globals
                     const cleanExp = input.replace(/[^0-9+\-*/().%\s^Math\.sin|cos|tan|sqrt|PI|E|abs|floor|ceil|pow|log]/g, '');
                     const evalResult = Function(`"use strict"; return (${cleanExp})`)();
                     return `### 🧮 算式計算與解析\n\n` +
@@ -874,23 +851,20 @@ console.log("現在時間是：", getFormattedTime());
                     resultText = `### 沙沙AI 長文重點摘要\n\n- **核心觀點：** 針對「${inputVal.substring(0, 20)}...」重點歸納。\n- **關鍵要點一：** 清晰梳理現有資訊脈絡。\n- **關鍵要點二：** 提供下一步的優化執行方針。`;
                 } else if (currentTool === 'code') {
                     const lang = document.getElementById('toolCodeLang').value || 'JavaScript';
-                    resultText = `### 沙沙AI 程式碼處理結果 (${lang})\n\n\`\`\`${lang.toLowerCase()}\n// 沙沙AI 智能生成的 ${lang} 程式碼片段\nfunction handleProcess(data) {\n    if (!data) return null;\n    console.log("沙沙AI 處理中:", data);\n    return { success: true, result: data };\n}\n\`\`\`\n\n**說明：** 程式碼結構完整且具備基礎驗證邏輯。`;
+                    resultText = `### 沙沙AI 程式碼處理結果 (${lang})\n\n\`\`\`${lang.toLowerCase()}\nfunction handleProcess(data) {\n    if (!data) return null;\n    console.log("沙沙AI 處理中:", data);\n    return { success: true, result: data };\n}\n\`\`\`\n\n**說明：** 程式碼結構完整且具備基礎驗證邏輯。`;
                 } else if (currentTool === 'creative') {
-                    resultText = `### 沙沙AI 創意社群文案\n\n🌸 **【新品亮點】${inputVal}！** ✨\n\n生活需要一點驚喜！讓 沙沙AI 帶你體驗更聰明、更優雅的效率生活！💖\n\n快點擊連結了解更多細節吧！\n\n#沙沙AI #生活提案 #高效助手 #創意靈感`;
+                    resultText = `### 沙沙AI 創意社群文案\n\n **【新品亮點】${inputVal}！** ✨\n\n生活需要一點驚喜！讓 沙沙AI 帶你體驗更聰明、更優雅的效率生活！💖\n\n快點擊連結了解更多細節吧！\n\n#沙沙AI #生活提案 #高效助手 #創意靈感`;
                 } else if (currentTool === 'math') {
                     const mode = document.getElementById('toolMathMode')?.value || 'calc';
                     resultText = solveMathTask(mode, inputVal);
                 }
 
-                // Render Result
                 outputEl.innerHTML = marked.parse(resultText);
 
-                // Highlight code blocks
                 outputEl.querySelectorAll('pre code').forEach((block) => {
                     hljs.highlightElement(block);
                 });
 
-                // Save to history
                 saveToolHistory(toolConfigs[currentTool].title, inputVal, resultText);
                 runBtn.disabled = false;
             }, 500);
@@ -903,7 +877,6 @@ console.log("現在時間是：", getFormattedTime());
             copyToClipboard(encodeURIComponent(text));
         }
 
-        // --- TAB 3: HISTORY FUNCTIONALITY ---
         function saveToolHistory(toolTitle, input, output) {
             const item = {
                 id: Date.now(),
@@ -952,7 +925,6 @@ console.log("現在時間是：", getFormattedTime());
             }
         }
 
-        // --- UTILITY FUNCTIONS ---
         function copyToClipboard(encodedText) {
             const text = decodeURIComponent(encodedText);
             const textarea = document.createElement('textarea');
