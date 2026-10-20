@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沙沙AI - 智慧模擬助手</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f6ff',
+                            100: '#e0edff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Highlight.js for Code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.6);
+        }
+        /* Glassmorphism utility */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        /* Markdown style tweaks */
+        .prose pre {
+            background-color: #1e293b !important;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+        }
+        .prose code {
+            color: #ec4899;
+            background-color: rgba(156, 163, 175, 0.15);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
+        }
+        .prose pre code {
+            color: inherit;
+            background-color: transparent;
+            padding: 0;
+        }
+        .prose p {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+        .prose ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+        .prose ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col md:flex-row transition-colors duration-200">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-64 bg-white/80 dark:bg-gray-800/80 border-r border-gray-200 dark:border-gray-700 flex flex-col justify-between shrink-0 glass z-20">
+        <div>
+            <!-- Logo Header -->
+            <div class="p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 rounded-xl text-white shadow-lg shadow-pink-500/30">
+                        <i class="fa-solid font-bold fa-sparkles text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">沙沙AI Studio</h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">本地離線智慧助手</p>
+                    </div>
+                </div>
+                <!-- Theme Toggle Button -->
+                <button id="themeToggle" class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400">
+                    <i class="fa-solid fa-moon dark:hidden text-lg"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-lg text-amber-400"></i>
+                </button>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="p-3 space-y-1">
+                <button onclick="switchTab('chat')" id="nav-chat" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-150 bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-400">
+                    <i class="fa-solid fa-comments text-lg w-5 text-center"></i>
+                    <span>沙沙 AI 對話</span>
+                </button>
+                <button onclick="switchTab('tools')" id="nav-tools" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-150 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                    <i class="fa-solid fa-cubes text-lg w-5 text-center"></i>
+                    <span>快捷工具庫</span>
+                </button>
+                <button onclick="switchTab('history')" id="nav-history" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-150 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                    <i class="fa-solid fa-clock-rotate-left text-lg w-5 text-center"></i>
+                    <span>對話紀錄與歷史</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Footer Notice -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center space-x-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>無須 API Key，純網頁端運作</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative bg-gray-50/50 dark:bg-gray-900/50">
+
+        <!-- TAB 1: AI CHAT ASSISTANT -->
+        <section id="tab-chat" class="tab-content flex-1 flex flex-col h-full overflow-hidden">
+            <!-- Chat Header -->
+            <header class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-white/40 dark:bg-gray-800/40 glass">
+                <div>
+                    <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">沙沙AI 互動對話</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">即時回答問題、撰寫文章、腦力激盪與程式碼處理</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="clearChatHistory()" title="清除對話" class="p-2 text-gray-500 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                    <button onclick="exportChat('txt')" title="匯出對話 (TXT)" class="px-3 py-1.5 text-xs font-medium border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg flex items-center space-x-1">
+                        <i class="fa-solid fa-file-export"></i>
+                        <span>TXT</span>
+                    </button>
+                    <button onclick="exportChat('md')" title="匯出對話 (Markdown)" class="px-3 py-1.5 text-xs font-medium border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg flex items-center space-x-1">
+                        <i class="fa-solid fa-file-code"></i>
+                        <span>MD</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Chat Messages Box -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+                <!-- Welcome Message -->
+                <div class="flex items-start space-x-3 max-w-3xl">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md">
+                        <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none border border-gray-200/80 dark:border-gray-700/80 shadow-sm text-sm space-y-2 prose dark:prose-invert max-w-none">
+                        <p>你好呀！我是 **沙沙AI** 🌸！</p>
+                        <p>我是一個不需要外部 API Key、能直接在瀏覽器為你服務的離線智慧助手。你可以問我任何問題，例如：**自我介紹**、**旅遊景點**、**程式碼寫法**或**靈感撰寫**喔！</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Chips -->
+            <div class="px-4 py-2 border-t border-gray-100 dark:border-gray-800/50 flex items-center space-x-2 overflow-x-auto text-xs">
+                <span class="text-gray-400 shrink-0">快捷提問：</span>
+                <button onclick="quickSend('請介紹一下你自己與優勢')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">
+                    ✨ 請介紹你自己
+                </button>
+                <button onclick="quickSend('寫一段 JavaScript 取得目前時間的函數')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">
+                    💻 JavaScript 程式碼範例
+                </button>
+                <button onclick="quickSend('推薦三個適合放鬆心靈的國內旅遊景點')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">
+                    🏞️ 推薦旅遊景點
+                </button>
+            </div>
+
+            <!-- Chat Input Box -->
+            <div class="p-4 border-t border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-800/60 glass">
+                <form id="chatForm" onsubmit="handleChatSubmit(event)" class="max-w-4xl mx-auto relative flex items-center">
+                    <textarea id="chatInput" rows="1" placeholder="輸入訊息向 沙沙AI 提問..." class="w-full resize-none pl-4 pr-12 py-3 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm max-h-32 transition-all"></textarea>
+                    <button type="submit" id="sendBtn" class="absolute right-2.5 p-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-lg transition-colors shadow-md">
+                        <i class="fa-solid fa-paper-plane text-sm"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 2: PRESET AI TOOLS -->
+        <section id="tab-tools" class="tab-content flex-1 hidden overflow-y-auto p-6">
+            <div class="max-w-5xl mx-auto space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold">快捷 AI 工具庫</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">選擇適合的快捷任務，交給沙沙AI幫你迅速處理！</p>
+                </div>
+
+                <!-- Category Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button onclick="selectTool('polish')" id="tool-btn-polish" class="tool-card p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-500 dark:hover:border-pink-500 transition-all text-left flex flex-col justify-between shadow-sm hover:shadow-md">
+                        <div>
+                            <div class="w-10 h-10 rounded-lg bg-pink-100 dark:bg-pink-900/50 text-pink-600 dark:text-pink-400 flex items-center justify-center text-lg mb-3">
+                                <i class="fa-solid fa-pen-nib"></i>
+                            </div>
+                            <h3 class="font-semibold text-base mb-1">文字潤飾與翻譯</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">文章潤色修飾、語氣調整、多國語言切換</p>
+                        </div>
+                    </button>
+
+                    <button onclick="selectTool('summary')" id="tool-btn-summary" class="tool-card p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-500 dark:hover:border-pink-500 transition-all text-left flex flex-col justify-between shadow-sm hover:shadow-md">
+                        <div>
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg mb-3">
+                                <i class="fa-solid fa-list-check"></i>
+                            </div>
+                            <h3 class="font-semibold text-base mb-1">長文重點摘要</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">提煉長文精華、自動梳理出結構化重點</p>
+                        </div>
+                    </button>
+
+                    <button onclick="selectTool('code')" id="tool-btn-code" class="tool-card p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-500 dark:hover:border-pink-500 transition-all text-left flex flex-col justify-between shadow-sm hover:shadow-md">
+                        <div>
+                            <div class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg mb-3">
+                                <i class="fa-solid fa-code"></i>
+                            </div>
+                            <h3 class="font-semibold text-base mb-1">程式碼助手</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">生成程式碼片段、協助 Debug 或解說 logic</p>
+                        </div>
+                    </button>
+
+                    <button onclick="selectTool('creative')" id="tool-btn-creative" class="tool-card p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-500 dark:hover:border-pink-500 transition-all text-left flex flex-col justify-between shadow-sm hover:shadow-md">
+                        <div>
+                            <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg mb-3">
+                                <i class="fa-solid fa-lightbulb"></i>
+                            </div>
+                            <h3 class="font-semibold text-base mb-1">創意社群文案</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">社群貼文、Email 草稿、廣告標語生成</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Tool Work Area -->
+                <div id="toolWorkspace" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-sm space-y-6">
+                    <div id="toolHeader">
+                        <!-- Dynamic Tool Title & Control -->
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Input Section -->
+                        <div class="space-y-3">
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">輸入內容 / 需求</label>
+                            <textarea id="toolInput" rows="10" placeholder="請在此貼上內容或輸入需求..." class="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm resize-y"></textarea>
+                            <button onclick="runTool()" id="runToolBtn" class="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl font-medium transition-colors shadow-md flex justify-center items-center space-x-2">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span>沙沙AI 開始執行</span>
+                            </button>
+                        </div>
+
+                        <!-- Output Section -->
+                        <div class="space-y-3 flex flex-col">
+                            <div class="flex justify-between items-center">
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">生成結果</label>
+                                <button onclick="copyToolOutput()" class="text-xs text-pink-600 dark:text-pink-400 hover:underline flex items-center space-x-1">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span>複製結果</span>
+                                </button>
+                            </div>
+                            <div id="toolOutput" class="flex-1 p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm overflow-y-auto prose dark:prose-invert max-w-none min-h-[250px]">
+                                <span class="text-gray-400 italic">結果將顯示於此...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: HISTORY & SAVED PROMPTS -->
+        <section id="tab-history" class="tab-content flex-1 hidden overflow-y-auto p-6">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold">歷史紀錄與備忘</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">查看先前使用沙沙AI工具產生的歷史紀錄</p>
+                    </div>
+                    <button onclick="clearSavedHistory()" class="px-3 py-1.5 text-xs text-red-500 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg">
+                        清除所有紀錄
+                    </button>
+                </div>
+
+                <div id="historyList" class="space-y-4">
+                    <!-- Dynamic History Items -->
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fa-solid fa-box-open text-4xl mb-3"></i>
+                        <p>目前尚無儲存的歷史紀錄</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Application Logic Script -->
+    <script>
+        // State Management
+        let currentTab = 'chat';
+        let chatHistory = [];
+        let toolHistory = JSON.parse(localStorage.getItem('shasha_tool_history') || '[]');
+        let currentTool = 'polish';
+
+        // Predefined Tool Configurations
+        const toolConfigs = {
+            polish: {
+                title: '文字潤飾與翻譯',
+                desc: '交給沙沙AI幫你調整文章結構、修飾錯別字或翻譯成多國語言。',
+                controls: `
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-500">目標語言</label>
+                            <select id="toolLang" class="w-full p-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
+                                <option value="Traditional Chinese">繁體中文</option>
+                                <option value="English">English</option>
+                                <option value="Japanese">日本語</option>
+                                <option value="Korean">한국어</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-500">語氣風格</label>
+                            <select id="toolTone" class="w-full p-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
+                                <option value="Professional">專業正式</option>
+                                <option value="Casual">輕鬆親切</option>
+                                <option value="Creative">生動創意</option>
+                            </select>
+                        </div>
+                    </div>
+                `
+            },
+            summary: {
+                title: '長文重點摘要',
+                desc: '快速提煉長文與會議重點，以清晰的列表展示。',
+                controls: `
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold mb-1 text-gray-500">摘要深度</label>
+                        <select id="toolLength" class="w-full p-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
+                            <option value="Short">精簡 (3點核心重點)</option>
+                            <option value="Detailed">詳細 (結構化分段說明)</option>
+                        </select>
+                    </div>
+                `
+            },
+            code: {
+                title: '程式碼助手',
+                desc: '讓沙沙AI協助撰寫程式碼、尋找 Bug 或解釋邏輯。',
+                controls: `
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-500">任務類型</label>
+                            <select id="toolCodeTask" class="w-full p-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
+                                <option value="generate">生成程式碼範例</option>
+                                <option value="debug">尋找 Bug 與修正</option>
+                                <option value="explain">解說運作邏輯</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-500">程式語言</label>
+                            <input id="toolCodeLang" type="text" placeholder="例如: JavaScript, Python" class="w-full p-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm" value="JavaScript">
+                        </div>
+                    </div>
+                `
+            },
+            creative: {
+                title: '創意社群文案',
+                desc: '輕鬆產出社群貼文、行銷文案或 Email 信件草稿。',
+                controls: `
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold mb-1 text-gray-500">文案類型</label>
+                        <select id="toolCreativeType" class="w-full p-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
+                            <option value="social">社群貼文 (含 Emoji 與 Hashtags)</option>
+                            <option value="email">正式 Email 商業信件</option>
+                            <option value="slogan">行銷廣告標語 Slogan</option>
+                        </select>
+                    </div>
+                `
+            }
+        };
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            selectTool('polish');
+            renderHistory();
+
+            // Auto-resize chat textarea
+            const chatInput = document.getElementById('chatInput');
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+
+            // Enter key to send chat
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    document.getElementById('chatForm').requestSubmit();
+                }
+            });
+        });
+
+        // Theme Toggle
+        function initTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('bg-pink-50', 'dark:bg-pink-950/40', 'text-pink-600', 'dark:text-pink-400');
+                el.classList.add('text-gray-600', 'dark:text-gray-300');
+            });
+
+            const activeNav = document.getElementById(`nav-${tab}`);
+            activeNav.classList.add('bg-pink-50', 'dark:bg-pink-950/40', 'text-pink-600', 'dark:text-pink-400');
+            activeNav.classList.remove('text-gray-600', 'dark:text-gray-300');
+        }
+
+        // --- SIMULATION ENGINE (No API Needed) ---
+        function getSimulatedChatResponse(input) {
+            const lower = input.toLowerCase();
+
+            if (lower.includes('你好') || lower.includes('hi') || lower.includes('hello') || lower.includes('哈囉') || lower.includes('嗨')) {
+                return `你好呀！我是 **沙沙AI** 🌸！很高興能和你聊天，今天有什麼我可以幫忙的嗎？`;
+            }
+            if (lower.includes('程式碼') || lower.includes('code') || lower.includes('python') || lower.includes('javascript') || lower.includes('html')) {
+                return `沒問題！這是沙沙AI為你準備的 JavaScript 時間處理實用範例：
+
+\`\`\`javascript
+// 沙沙AI 提供的取得當前時間格式化函式
+function getFormattedTime() {
+    const now = new Date();
+    return now.toLocaleString('zh-TW', { 
+        hour12: false, 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+    });
+}
+
+console.log("現在時間是：", getFormattedTime());
+\`\`\`
+
+這段程式碼直接貼到瀏覽器的 Console 就可以執行囉！如果需要其他語言也歡迎告訴我！`;
+            }
+            if (lower.includes('旅遊') || lower.includes('推薦') || lower.includes('景點')) {
+                return `這裡是沙沙AI為你特別精選的旅遊行程推薦 🚗✨：
+
+1. **九份老街與金瓜石**：漫步懷舊山城，享受熱騰騰的芋圓與山海美景。
+2. **日月潭環湖步道**：騎著單車感受微風吹拂，欣賞如詩如畫的水色。
+3. **花蓮太魯閣峽谷**：感受大自然的鬼斧神工與壯麗山壁。
+
+出發前記得檢查天氣預報，祝你有個愉快的假期！`;
+            }
+            if (lower.includes('介紹') || lower.includes('你是誰') || lower.includes('優勢')) {
+                return `我是 **沙沙AI** 💖！是一個不需要任何 API 密碼、輕量且響應迅速的網頁智慧助手。
+
+✨ **我的特色與功能包括：**
+- 💬 **自由聊天與問答**：解答疑問與發想靈感。
+- ✍️ **文字潤飾與翻譯**：多國語言流暢轉換。
+- 📝 **長文精華摘要**：快節奏掌握核心要點。
+- 💻 **程式碼小幫手**：撰寫範例與邏輯說明。
+- 🎨 **創意社群文案**：自動生成熱門貼文標題。
+
+隨時點擊左側的工具選單體驗吧！`;
+            }
+
+            return `關於「**${input}**」，沙沙AI為你整理了以下幾點建議：
+
+1. **掌握關鍵方向**：明確想要達成的具體目標。
+2. **分步驟執行**：將任務拆解為幾個小階段，逐步完成。
+3. **靈活微調**：過程中持續檢視成果，隨時進行優化。
+
+你可以嘗試使用左側的「**快捷工具庫**」進行深度的文案生成或摘要分析喔！`;
+        }
+
+        // Quick Send Action
+        function quickSend(text) {
+            document.getElementById('chatInput').value = text;
+            document.getElementById('chatForm').requestSubmit();
+        }
+
+        // --- TAB 1: CHAT FUNCTIONALITY ---
+        async function handleChatSubmit(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('chatInput');
+            const userMsg = inputEl.value.trim();
+            if (!userMsg) return;
+
+            // Clear input
+            inputEl.value = '';
+            inputEl.style.height = 'auto';
+
+            // Append User Message
+            appendChatMessage('user', userMsg);
+
+            // Append Loading Indicator
+            const loadingId = appendChatMessage('ai', '<i class="fa-solid fa-spinner fa-spin"></i> 沙沙AI 正在思考中...', true);
+
+            // Simulate Network / AI Response Delay
+            setTimeout(() => {
+                const aiResponse = getSimulatedChatResponse(userMsg);
+
+                // Remove Loading & Render Response
+                removeChatMessage(loadingId);
+                appendChatMessage('ai', aiResponse);
+
+                // Save to history state
+                chatHistory.push({ role: 'user', text: userMsg });
+                chatHistory.push({ role: 'ai', text: aiResponse });
+            }, 500);
+        }
+
+        function appendChatMessage(role, text, isLoading = false) {
+            const container = document.getElementById('chatMessages');
+            const msgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+
+            const isUser = role === 'user';
+            const avatarHtml = isUser 
+                ? `<div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fa-solid fa-user text-sm"></i></div>`
+                : `<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md"><i class="fa-solid fa-wand-magic-sparkles text-xs"></i></div>`;
+
+            const parsedText = isLoading ? text : marked.parse(text);
+
+            const msgHtml = `
+                <div id="${msgId}" class="flex items-start space-x-3 max-w-3xl ${isUser ? 'ml-auto flex-row-reverse space-x-reverse' : ''}">
+                    ${avatarHtml}
+                    <div class="relative group">
+                        <div class="${isUser ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' : 'bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80'} p-4 rounded-2xl ${isUser ? 'rounded-tr-none' : 'rounded-tl-none'} shadow-sm text-sm space-y-2 prose dark:prose-invert max-w-none">
+                            ${parsedText}
+                        </div>
+                        ${!isLoading && !isUser ? `
+                            <button onclick="copyToClipboard(\`${encodeURIComponent(text)}\`)" class="absolute -bottom-6 left-0 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-gray-400 hover:text-pink-500 flex items-center space-x-1 py-1">
+                                <i class="fa-regular fa-copy"></i>
+                                <span>複製內容</span>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', msgHtml);
+            container.scrollTop = container.scrollHeight;
+
+            // Highlight code blocks
+            document.querySelectorAll('#' + msgId + ' pre code').forEach((block) => {
+                hljs.highlightElement(block);
+            });
+
+            return msgId;
+        }
+
+        function removeChatMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function clearChatHistory() {
+            if (confirm('確定要清除目前的對話紀錄嗎？')) {
+                chatHistory = [];
+                document.getElementById('chatMessages').innerHTML = `
+                    <div class="flex items-start space-x-3 max-w-3xl">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md">
+                            <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none border border-gray-200/80 dark:border-gray-700/80 shadow-sm text-sm space-y-2 prose dark:prose-invert max-w-none">
+                            <p>對話紀錄已清除完畢！隨時可以再次輸入訊息與 沙沙AI 互動喔！✨</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function exportChat(type) {
+            if (chatHistory.length === 0) {
+                alert('目前尚無對話紀錄可供匯出');
+                return;
+            }
+
+            let content = '';
+            if (type === 'txt') {
+                content = chatHistory.map(m => `[${m.role === 'user' ? 'USER' : '沙沙AI'}]\n${m.text}\n`).join('\n---\n\n');
+            } else {
+                content = chatHistory.map(m => `### ${m.role === 'user' ? 'User' : '沙沙AI'}\n${m.text}\n`).join('\n');
+            }
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `shasha-chat-export-${Date.now()}.${type}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // --- TAB 2: TOOLS FUNCTIONALITY ---
+        function selectTool(toolKey) {
+            currentTool = toolKey;
+            const config = toolConfigs[toolKey];
+
+            // Update tab button styles
+            document.querySelectorAll('.tool-card').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-pink-500', 'border-transparent');
+            });
+            document.getElementById(`tool-btn-${toolKey}`).classList.add('ring-2', 'ring-pink-500', 'border-transparent');
+
+            // Render Header & Controls
+            const toolHeader = document.getElementById('toolHeader');
+            toolHeader.innerHTML = `
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">${config.title}</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">${config.desc}</p>
+                ${config.controls}
+            `;
+
+            // Reset Output
+            document.getElementById('toolOutput').innerHTML = `<span class="text-gray-400 italic">結果將顯示於此...</span>`;
+        }
+
+        function runTool() {
+            const inputVal = document.getElementById('toolInput').value.trim();
+            if (!inputVal) {
+                alert('請輸入需要處理的內容');
+                return;
+            }
+
+            const outputEl = document.getElementById('toolOutput');
+            const runBtn = document.getElementById('runToolBtn');
+
+            outputEl.innerHTML = `<span class="text-pink-500"><i class="fa-solid fa-spinner fa-spin"></i> 沙沙AI 正在努力生成中...</span>`;
+            runBtn.disabled = true;
+
+            setTimeout(() => {
+                let resultText = '';
+
+                if (currentTool === 'polish') {
+                    const lang = document.getElementById('toolLang').value;
+                    const tone = document.getElementById('toolTone').value;
+                    resultText = `### 沙沙AI 潤飾與翻譯結果 (${lang} - ${tone})\n\n**原文：**\n> ${inputVal}\n\n**精修輸出：**\n「${inputVal}」經過沙沙AI調整語意與結構後，語氣更加流暢且符合 ${tone} 風格。`;
+                } else if (currentTool === 'summary') {
+                    resultText = `### 沙沙AI 長文重點摘要\n\n- **核心觀點：** 針對「${inputVal.substring(0, 20)}...」重點歸納。\n- **關鍵要點一：** 清晰梳理現有資訊脈絡。\n- **關鍵要點二：** 提供下一步的優化執行方針。`;
+                } else if (currentTool === 'code') {
+                    const lang = document.getElementById('toolCodeLang').value || 'JavaScript';
+                    resultText = `### 沙沙AI 程式碼處理結果 (${lang})\n\n\`\`\`${lang.toLowerCase()}\n// 沙沙AI 智能生成的 ${lang} 程式碼片段\nfunction handleProcess(data) {\n    if (!data) return null;\n    console.log("沙沙AI 處理中:", data);\n    return { success: true, result: data };\n}\n\`\`\`\n\n**說明：** 程式碼結構完整且具備基礎驗證邏輯。`;
+                } else if (currentTool === 'creative') {
+                    resultText = `### 沙沙AI 創意社群文案\n\n🌸 **【新品亮點】${inputVal}！** ✨\n\n生活需要一點驚喜！讓 沙沙AI 帶你體驗更聰明、更優雅的效率生活！💖\n\n快點擊連結了解更多細節吧！\n\n#沙沙AI #生活提案 #高效助手 #創意靈感`;
+                }
+
+                // Render Result
+                outputEl.innerHTML = marked.parse(resultText);
+
+                // Highlight code blocks
+                outputEl.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+
+                // Save to history
+                saveToolHistory(toolConfigs[currentTool].title, inputVal, resultText);
+                runBtn.disabled = false;
+            }, 500);
+        }
+
+        function copyToolOutput() {
+            const outputEl = document.getElementById('toolOutput');
+            const text = outputEl.innerText;
+            if (!text || text.includes('結果將顯示於此')) return;
+            copyToClipboard(encodeURIComponent(text));
+        }
+
+        // --- TAB 3: HISTORY FUNCTIONALITY ---
+        function saveToolHistory(toolTitle, input, output) {
+            const item = {
+                id: Date.now(),
+                title: toolTitle,
+                input: input.substring(0, 100) + (input.length > 100 ? '...' : ''),
+                output: output,
+                time: new Date().toLocaleString()
+            };
+            toolHistory.unshift(item);
+            if (toolHistory.length > 20) toolHistory.pop();
+            localStorage.setItem('shasha_tool_history', JSON.stringify(toolHistory));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            if (toolHistory.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fa-solid fa-box-open text-4xl mb-3"></i>
+                        <p>目前尚無儲存的歷史紀錄</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = toolHistory.map(item => `
+                <div class="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl space-y-2 shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold px-2 py-1 bg-pink-100 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 rounded-md">${item.title}</span>
+                        <span class="text-xs text-gray-400">${item.time}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">輸入內容: ${escapeHtml(item.input)}</p>
+                    <div class="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg text-xs prose dark:prose-invert max-w-none max-h-32 overflow-y-auto">
+                        ${marked.parse(item.output)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearSavedHistory() {
+            if (confirm('確定要清除所有歷史工具紀錄嗎？')) {
+                toolHistory = [];
+                localStorage.removeItem('shasha_tool_history');
+                renderHistory();
+            }
+        }
+
+        // --- UTILITY FUNCTIONS ---
+        function copyToClipboard(encodedText) {
+            const text = decodeURIComponent(encodedText);
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert('已成功複製到剪貼簿！');
+            } catch (err) {
+                alert('複製失敗，請手動複製');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+    </script>
+</body>
+</html>
