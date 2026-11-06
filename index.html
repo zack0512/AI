@@ -138,6 +138,10 @@
                     <i class="fa-solid fa-cubes text-lg w-5 text-center"></i>
                     <span>快捷工具庫</span>
                 </button>
+                <button onclick="switchTab('unresolved')" id="nav-unresolved" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-150 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
+                    <i class="fa-solid fa-clipboard-question text-lg w-5 text-center text-amber-500"></i>
+                    <span>待解區 (知識庫)</span>
+                </button>
                 <button onclick="switchTab('history')" id="nav-history" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-150 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50">
                     <i class="fa-solid fa-clock-rotate-left text-lg w-5 text-center"></i>
                     <span>對話紀錄與歷史</span>
@@ -148,8 +152,8 @@
         <!-- Footer Notice -->
         <div class="p-4 border-t border-gray-200 dark:border-gray-700">
             <div class="flex items-center space-x-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300">
-                <i class="fa-solid fa-shield-halved"></i>
-                <span>無須 API Key，純網頁端運作</span>
+                <i class="fa-solid fa-database"></i>
+                <span>Firebase 即時知識庫整合</span>
             </div>
         </div>
     </aside>
@@ -189,7 +193,7 @@
                     </div>
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none border border-gray-200/80 dark:border-gray-700/80 shadow-sm text-sm space-y-2 prose dark:prose-invert max-w-none">
                         <p>你好呀！我是沙沙AI！</p>
-                        <p>我是一個能為你服務的智慧助手。你可以問我任何問題，例如：自我介紹、旅遊景點、程式碼寫法或靈感撰寫喔！</p>
+                        <p>我是一個能為你服務的智慧助手。若遇到我不懂的問題，我會將它記錄到「待解區」，等您親自教我後我就會記住解答囉！</p>
                     </div>
                 </div>
             </div>
@@ -313,7 +317,37 @@
             </div>
         </section>
 
-        <!-- TAB 3: HISTORY -->
+        <!-- TAB 3: UNRESOLVED / KNOWLEDGE BASE -->
+        <section id="tab-unresolved" class="tab-content flex-1 hidden overflow-y-auto p-6">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold flex items-center space-x-2">
+                        <span>待解區與學習庫</span>
+                        <span id="unresolvedBadge" class="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full">0 待處理</span>
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">當沙沙AI遇到不會的問題會記錄於此，請輸入解答協助學習！解答後 AI 將學習關鍵字與答案。</p>
+                </div>
+
+                <!-- 手動建立問題區 -->
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm space-y-3">
+                    <h3 class="font-semibold text-sm">➕ 手動新增待學習問題</h3>
+                    <div class="flex gap-2">
+                        <input id="manualQuestionInput" type="text" placeholder="例如：沙沙AI社團的創辦人是誰？" class="flex-1 p-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm">
+                        <button onclick="handleManualQuestionAdd()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm rounded-lg transition-colors font-medium">新增至待解區</button>
+                    </div>
+                </div>
+
+                <!-- List of unresolved & answered questions -->
+                <div id="unresolvedList" class="space-y-4">
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+                        <p>正在從 Firebase 載入待解問題...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: HISTORY -->
         <section id="tab-history" class="tab-content flex-1 hidden overflow-y-auto p-6">
             <div class="max-w-4xl mx-auto space-y-6">
                 <div class="flex justify-between items-center">
@@ -336,6 +370,181 @@
         </section>
 
     </main>
+
+    <!-- Firebase Realtime Database Module Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZ9s5Ku8aEzaVEmk_7ztbIiHXI6qmz5H0",
+            authDomain: "my-project-zack0512.firebaseapp.com",
+            databaseURL: "https://my-project-zack0512-default-rtdb.firebaseio.com",
+            projectId: "my-project-zack0512",
+            storageBucket: "my-project-zack0512.firebasestorage.app",
+            messagingSenderId: "972310414233",
+            appId: "1:972310414233:web:0985d346a8f9ce33530908",
+            measurementId: "G-3TF5FY8NP7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // 提取關鍵字功能 (簡單斷詞與重要詞彙提取)
+        function extractKeywords(text) {
+            if (!text) return [];
+            // 移除標點符號，將問句字詞過濾
+            const clean = text.replace(/[，。！？、?!\s\t]/g, ' ');
+            const words = clean.split(' ').filter(w => w.length > 0);
+            
+            const stopWords = ['請問', '你知道', '是什麼', '怎麼', '什麼', '哪個', '如何', '為甚麼', '為什麼', '嗎', '呢', '啊', '這', '那', '的', '是'];
+            let keywords = [];
+
+            words.forEach(w => {
+                let temp = w;
+                stopWords.forEach(sw => {
+                    temp = temp.replace(new RegExp(sw, 'g'), '');
+                });
+                if (temp.length >= 1) {
+                    keywords.push(temp.toLowerCase());
+                }
+            });
+
+            // 如果句子較長，自動拆解2字以上的子詞
+            if (clean.length > 2) {
+                for (let i = 0; i < clean.length - 1; i++) {
+                    const sub = clean.substr(i, 2).toLowerCase();
+                    if (!stopWords.includes(sub) && !keywords.includes(sub)) {
+                        keywords.push(sub);
+                    }
+                }
+            }
+
+            return Array.from(new Set(keywords));
+        }
+
+        // 1. 將不會的問題存入 Firebase 待解區
+        window.saveUnresolvedQuestion = async function(questionText) {
+            const unresolvedRef = ref(db, 'unresolved_questions');
+            const keywords = extractKeywords(questionText);
+            await push(unresolvedRef, {
+                question: questionText,
+                keywords: keywords,
+                status: 'pending',
+                answer: '',
+                createdAt: new Date().toISOString()
+            });
+        };
+
+        // 2. 提供答案並發動關鍵字學習
+        window.submitAnswerForQuestion = async function(id, answerText, questionText) {
+            if (!answerText.trim()) {
+                alert('請輸入解答！');
+                return;
+            }
+            const keywords = extractKeywords(questionText);
+            const questionRef = ref(db, `unresolved_questions/${id}`);
+            
+            await update(questionRef, {
+                answer: answerText,
+                keywords: keywords,
+                status: 'resolved',
+                resolvedAt: new Date().toISOString()
+            });
+
+            alert('解答已更新！沙沙AI 已成功提取關鍵字並學習此知識！');
+        };
+
+        // 3. 刪除問題/紀錄
+        window.deleteQuestionItem = async function(id) {
+            if (confirm('確定要刪除這筆紀錄嗎？')) {
+                await remove(ref(db, `unresolved_questions/${id}`));
+            }
+        };
+
+        // 4. 手動新增待解問題
+        window.handleManualQuestionAdd = async function() {
+            const el = document.getElementById('manualQuestionInput');
+            const q = el.value.trim();
+            if (!q) return;
+            await window.saveUnresolvedQuestion(q);
+            el.value = '';
+            alert('已成功新增問題至待解區！');
+        };
+
+        // 5. 監聽 Firebase 知識庫變更，讓 AI 具備即時檢索能力
+        window.knownKnowledgeBase = [];
+        const unresolvedRef = ref(db, 'unresolved_questions');
+        onValue(unresolvedRef, (snapshot) => {
+            const data = snapshot.val();
+            window.knownKnowledgeBase = [];
+            let pendingCount = 0;
+            const container = document.getElementById('unresolvedList');
+
+            if (!data) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-400">
+                        <i class="fa-solid fa-folder-open text-4xl mb-3"></i>
+                        <p>目前無任何待解問題或學習紀錄</p>
+                    </div>
+                `;
+                document.getElementById('unresolvedBadge').innerText = '0 待處理';
+                return;
+            }
+
+            let itemsHtml = '';
+            Object.keys(data).reverse().forEach(key => {
+                const item = data[key];
+                const isPending = item.status === 'pending';
+                if (isPending) pendingCount++;
+
+                // 收集已解答的知識
+                if (item.status === 'resolved' && item.answer) {
+                    window.knownKnowledgeBase.push(item);
+                }
+
+                itemsHtml += `
+                    <div class="p-5 bg-white dark:bg-gray-800 border ${isPending ? 'border-amber-300 dark:border-amber-700/60' : 'border-gray-200 dark:border-gray-700'} rounded-2xl shadow-sm space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div class="space-y-1">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${isPending ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400' : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'}">
+                                    ${isPending ? '⏳ 待解答' : '✅ 已學會'}
+                                </span>
+                                <h4 class="font-semibold text-base text-gray-800 dark:text-gray-100">${escapeHtml(item.question)}</h4>
+                            </div>
+                            <button onclick="deleteQuestionItem('${key}')" class="text-gray-400 hover:text-red-500 text-sm">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+
+                        ${item.keywords && item.keywords.length ? `
+                            <div class="flex flex-wrap gap-1 text-xs text-gray-500">
+                                <span class="font-medium">提取關鍵字：</span>
+                                ${item.keywords.map(kw => `<span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-pink-500 dark:text-pink-400">#${escapeHtml(kw)}</span>`).join('')}
+                            </div>
+                        ` : ''}
+
+                        ${isPending ? `
+                            <div class="pt-2 flex flex-col space-y-2">
+                                <textarea id="ans-input-${key}" rows="2" placeholder="請提供解答，協助 沙沙AI 學習..." class="p-3 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                                <button onclick="submitAnswerForQuestion('${key}', document.getElementById('ans-input-${key}').value, '${escapeHtml(item.question)}')" class="self-end px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium text-xs rounded-xl shadow">
+                                    提供答案並發動學習
+                                </button>
+                            </div>
+                        ` : `
+                            <div class="p-3 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 rounded-xl text-xs space-y-1">
+                                <p class="font-semibold text-emerald-700 dark:text-emerald-300">💡 沙沙AI 已掌握答案：</p>
+                                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">${escapeHtml(item.answer)}</p>
+                            </div>
+                        `}
+                    </div>
+                `;
+            });
+
+            document.getElementById('unresolvedBadge').innerText = `${pendingCount} 待處理`;
+            container.innerHTML = itemsHtml;
+        });
+    </script>
 
     <script>
         let currentTab = 'chat';
@@ -495,13 +704,56 @@
             });
 
             const activeNav = document.getElementById(`nav-${tab}`);
-            activeNav.classList.add('bg-pink-50', 'dark:bg-pink-950/40', 'text-pink-600', 'dark:text-pink-400');
-            activeNav.classList.remove('text-gray-600', 'dark:text-gray-300');
+            if (activeNav) {
+                activeNav.classList.add('bg-pink-50', 'dark:bg-pink-950/40', 'text-pink-600', 'dark:text-pink-400');
+                activeNav.classList.remove('text-gray-600', 'dark:text-gray-300');
+            }
         }
 
-        function getSimulatedChatResponse(input) {
+        // 搜尋 Firebase 即時學習資料庫
+        function searchKnowledgeBase(userInput) {
+            if (!window.knownKnowledgeBase || window.knownKnowledgeBase.length === 0) return null;
+            
+            const lowerInput = userInput.toLowerCase();
+            let bestMatch = null;
+            let maxScore = 0;
+
+            window.knownKnowledgeBase.forEach(item => {
+                let score = 0;
+                // 完全或局部包含問題
+                if (lowerInput.includes(item.question.toLowerCase())) {
+                    score += 10;
+                }
+                
+                // 比對關鍵字
+                if (item.keywords && Array.isArray(item.keywords)) {
+                    item.keywords.forEach(kw => {
+                        if (kw && lowerInput.includes(kw.toLowerCase())) {
+                            score += 2;
+                        }
+                    });
+                }
+
+                if (score > maxScore) {
+                    maxScore = score;
+                    bestMatch = item;
+                }
+            });
+
+            // 需達到一定的匹配分數才算找到答案
+            return maxScore >= 2 ? bestMatch : null;
+        }
+
+        async function getSimulatedChatResponse(input) {
             const lower = input.toLowerCase();
 
+            // 1. 先搜尋學習庫（Firebase已解答問題）
+            const matchedKB = searchKnowledgeBase(input);
+            if (matchedKB) {
+                return `🎓 **（學習庫回答）**\n\n${matchedKB.answer}`;
+            }
+
+            // 2. 預設內建回答
             if (lower.includes('你好') || lower.includes('hi') || lower.includes('hello') || lower.includes('哈囉') || lower.includes('嗨')) {
                 return `你好呀！我是沙沙AI！很高興能和你聊天，今天有什麼我可以幫忙的嗎？`;
             }
@@ -537,23 +789,22 @@ console.log("害入時間是：", getFormattedTime());
 出發前記得檢查天氣預報，祝你有個愉快的假期！`;
             }
             if (lower.includes('介紹') || lower.includes('你是誰') || lower.includes('優勢')) {
-                return `我是 **沙沙AI** 💖！是一個不需要任何 API 密碼、輕量且響應迅速的網頁智慧助手。
+                return `我是 **沙沙AI** 💖！是一個整合 Firebase 即時學習庫的智慧助手。
 
 ✨ **我的特色與功能包括：**
-- 💬 **自由聊天與問答**：解答疑問與發想靈感。
-- ✍️ **文字潤飾與翻譯**：多國語言流暢轉換。
-- 📝 **長文精華摘要**：快節奏掌握核心要點。
-- 💻 **程式碼小幫手**：撰寫範例與邏輯說明。
-- 🧮 **數學計算工具**：方程式求解與統計計算。
+- 💬 **自由聊天與問答**：遇到不會的問題自動紀錄在 Firebase 待解區。
+- 📚 **持續學習**：當你解答後，我會自動提取關鍵字並牢記解答！
+- ✍️ **快捷工具庫**：文字潤飾、長文摘要、程式碼助手與數學求解。
 
 隨時點擊左側的工具選單體驗吧！`;
             }
 
-            return `關於「**${input}**」，沙沙AI為你整理了以下幾點建議：
+            // 3. 遇到完全不會的問題：記錄至 Firebase 待解區
+            if (window.saveUnresolvedQuestion) {
+                await window.saveUnresolvedQuestion(input);
+            }
 
-1. **掌握關鍵方向**：明確想要達成的具體目標。
-2. **分步驟執行**：將任務拆解為幾個小階段，逐步完成。
-3. **靈活微調**：過程中持續檢視成果，隨時進行優化。`;
+            return `抱歉，這題沙沙AI目前還不會呢 🥺！\n\n我已經自動將「**${input}**」記錄到左側工具區的 **【待解區】** 中了！您可以撥空前去填寫解答，我會自動學習並記住答案喔！✨`;
         }
 
         function quickSend(text) {
@@ -571,16 +822,14 @@ console.log("害入時間是：", getFormattedTime());
             inputEl.style.height = 'auto';
 
             appendChatMessage('user', userMsg);
-            const loadingId = appendChatMessage('ai', '<i class="fa-solid fa-spinner fa-spin"></i> 沙沙AI 正在思考中...', true);
+            const loadingId = appendChatMessage('ai', '<i class="fa-solid fa-spinner fa-spin"></i> 沙沙AI 正在思考與檢索知識庫中...', true);
 
-            setTimeout(() => {
-                const aiResponse = getSimulatedChatResponse(userMsg);
-                removeChatMessage(loadingId);
-                appendChatMessage('ai', aiResponse);
+            const aiResponse = await getSimulatedChatResponse(userMsg);
+            removeChatMessage(loadingId);
+            appendChatMessage('ai', aiResponse);
 
-                chatHistory.push({ role: 'user', text: userMsg });
-                chatHistory.push({ role: 'ai', text: aiResponse });
-            }, 500);
+            chatHistory.push({ role: 'user', text: userMsg });
+            chatHistory.push({ role: 'ai', text: aiResponse });
         }
 
         function appendChatMessage(role, text, isLoading = false) {
@@ -941,6 +1190,7 @@ console.log("害入時間是：", getFormattedTime());
         }
 
         function escapeHtml(str) {
+            if (!str) return '';
             return str.replace(/[&<>"']/g, function(m) {
                 return {
                     '&': '&amp;',
