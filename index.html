@@ -34,55 +34,17 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.4);
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(156, 163, 175, 0.6);
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        .dark .glass {
-            background: rgba(17, 24, 39, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        .prose pre {
-            background-color: #1e293b !important;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-        }
-        .prose code {
-            color: #ec4899;
-            background-color: rgba(156, 163, 175, 0.15);
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.25rem;
-            font-size: 0.875em;
-        }
-        .prose pre code {
-            color: inherit;
-            background-color: transparent;
-            padding: 0;
-        }
-        .prose p {
-            margin-bottom: 0.75rem;
-            line-height: 1.6;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.6); }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .dark .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .prose pre { background-color: #1e293b !important; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { color: #ec4899; background-color: rgba(156, 163, 175, 0.15); padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.875em; }
+        .prose pre code { color: inherit; background-color: transparent; padding: 0; }
+        .prose p { margin-bottom: 0.75rem; line-height: 1.6; }
         .prose ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; }
         .prose ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.75rem; }
     </style>
@@ -163,7 +125,6 @@
 
         <!-- TAB 1: AI CHAT ASSISTANT -->
         <section id="tab-chat" class="tab-content flex-1 flex flex-col h-full overflow-hidden">
-            <!-- Chat Header -->
             <header class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-white/40 dark:bg-gray-800/40 glass">
                 <div>
                     <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">沙沙AI 互動對話</h2>
@@ -184,9 +145,7 @@
                 </div>
             </header>
 
-            <!-- Chat Messages Box -->
             <div id="chatMessages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-                <!-- Welcome Message -->
                 <div class="flex items-start space-x-3 max-w-3xl">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md">
                         <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
@@ -198,21 +157,13 @@
                 </div>
             </div>
 
-            <!-- Quick Action Chips -->
             <div class="px-4 py-2 border-t border-gray-100 dark:border-gray-800/50 flex items-center space-x-2 overflow-x-auto text-xs">
                 <span class="text-gray-400 shrink-0">快捷提問：</span>
-                <button onclick="quickSend('請介紹一下你自己與優勢')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">
-                    ✨ 請介紹你自己
-                </button>
-                <button onclick="quickSend('寫一段 JavaScript 取得目前時間的函數')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">
-                    💻 駭客JavaScript 程式碼範例
-                </button>
-                <button onclick="quickSend('推薦三個適合放鬆心靈的國內旅遊景點')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">
-                    🏞️ 推薦旅遊景點
-                </button>
+                <button onclick="quickSend('請介紹一下你自己與優勢')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">✨ 請介紹你自己</button>
+                <button onclick="quickSend('寫一段 JavaScript 取得目前時間的函數')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">💻 駭客JavaScript 程式碼範例</button>
+                <button onclick="quickSend('推薦三個適合放鬆心靈的國內旅遊景點')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">🏞️ 推薦旅遊景點</button>
             </div>
 
-            <!-- Chat Input Box -->
             <div class="p-4 border-t border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-800/60 glass">
                 <form id="chatForm" onsubmit="handleChatSubmit(event)" class="max-w-4xl mx-auto relative flex items-center">
                     <textarea id="chatInput" rows="1" placeholder="輸入訊息向 沙沙AI 提問..." class="w-full resize-none pl-4 pr-12 py-3 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm max-h-32 transition-all"></textarea>
@@ -231,65 +182,47 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400">選擇適合的快捷任務，交給沙沙AI幫你迅速處理！</p>
                 </div>
 
-                <!-- Category Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <button onclick="selectTool('polish')" id="tool-btn-polish" class="tool-card p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-500 dark:hover:border-pink-500 transition-all text-left flex flex-col justify-between shadow-sm hover:shadow-md">
                         <div>
-                            <div class="w-10 h-10 rounded-lg bg-pink-100 dark:bg-pink-900/50 text-pink-600 dark:text-pink-400 flex items-center justify-center text-lg mb-3">
-                                <i class="fa-solid fa-pen-nib"></i>
-                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-pink-100 dark:bg-pink-900/50 text-pink-600 dark:text-pink-400 flex items-center justify-center text-lg mb-3"><i class="fa-solid fa-pen-nib"></i></div>
                             <h3 class="font-semibold text-base mb-1">文字潤飾與翻譯</h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400">文章潤色修飾、語氣調整、多國語言切換</p>
                         </div>
                     </button>
-
                     <button onclick="selectTool('summary')" id="tool-btn-summary" class="tool-card p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-500 dark:hover:border-pink-500 transition-all text-left flex flex-col justify-between shadow-sm hover:shadow-md">
                         <div>
-                            <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg mb-3">
-                                <i class="fa-solid fa-list-check"></i>
-                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg mb-3"><i class="fa-solid fa-list-check"></i></div>
                             <h3 class="font-semibold text-base mb-1">長文重點摘要</h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400">提煉長文精華、自動梳理出結構化重點</p>
                         </div>
                     </button>
-
                     <button onclick="selectTool('code')" id="tool-btn-code" class="tool-card p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-500 dark:hover:border-pink-500 transition-all text-left flex flex-col justify-between shadow-sm hover:shadow-md">
                         <div>
-                            <div class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg mb-3">
-                                <i class="fa-solid fa-code"></i>
-                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg mb-3"><i class="fa-solid fa-code"></i></div>
                             <h3 class="font-semibold text-base mb-1">程式碼助手</h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400">生成程式碼片段、協助 Debug 或解說 logic</p>
                         </div>
                     </button>
-
                     <button onclick="selectTool('creative')" id="tool-btn-creative" class="tool-card p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-500 dark:hover:border-pink-500 transition-all text-left flex flex-col justify-between shadow-sm hover:shadow-md">
                         <div>
-                            <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg mb-3">
-                                <i class="fa-solid fa-lightbulb"></i>
-                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg mb-3"><i class="fa-solid fa-lightbulb"></i></div>
                             <h3 class="font-semibold text-base mb-1">創意社群文案</h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400">社群貼文、Email 草稿、廣告標語生成</p>
                         </div>
                     </button>
-
                     <button onclick="selectTool('math')" id="tool-btn-math" class="tool-card p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-pink-500 dark:hover:border-pink-500 transition-all text-left flex flex-col justify-between shadow-sm hover:shadow-md">
                         <div>
-                            <div class="w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-900/50 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-lg mb-3">
-                                <i class="fa-solid fa-calculator"></i>
-                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-900/50 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-lg mb-3"><i class="fa-solid fa-calculator"></i></div>
                             <h3 class="font-semibold text-base mb-1">數學計算工具</h3>
                             <p class="text-xs text-gray-500 dark:text-gray-400">方程式求解、統計數據、幾何運算與進位轉換</p>
                         </div>
                     </button>
                 </div>
 
-                <!-- Tool Work Area -->
                 <div id="toolWorkspace" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-sm space-y-6">
                     <div id="toolHeader"></div>
-
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Input Section -->
                         <div class="space-y-3">
                             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">輸入內容 / 需求</label>
                             <textarea id="toolInput" rows="10" placeholder="請在此貼上內容或輸入需求..." class="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm resize-y"></textarea>
@@ -298,8 +231,6 @@
                                 <span>沙沙AI 開始執行</span>
                             </button>
                         </div>
-
-                        <!-- Output Section -->
                         <div class="space-y-3 flex flex-col">
                             <div class="flex justify-between items-center">
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">生成結果</label>
@@ -328,7 +259,6 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400">當沙沙AI遇到不會的問題會記錄於此，請輸入解答協助學習！解答後 AI 將學習關鍵字與答案。</p>
                 </div>
 
-                <!-- 手動建立問題區 -->
                 <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm space-y-3">
                     <h3 class="font-semibold text-sm">➕ 手動新增待學習問題</h3>
                     <div class="flex gap-2">
@@ -337,7 +267,6 @@
                     </div>
                 </div>
 
-                <!-- List of unresolved & answered questions -->
                 <div id="unresolvedList" class="space-y-4">
                     <div class="text-center py-12 text-gray-400">
                         <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
@@ -371,10 +300,10 @@
 
     </main>
 
-    <!-- Firebase Realtime Database Module Integration -->
+    <!-- Firebase Realtime Database 模組導入與畫面同步邏輯 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBZ9s5Ku8aEzaVEmk_7ztbIiHXI6qmz5H0",
@@ -390,13 +319,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // 提取關鍵字功能 (簡單斷詞與重要詞彙提取)
+        // 提取關鍵字功能
         function extractKeywords(text) {
             if (!text) return [];
-            // 移除標點符號，將問句字詞過濾
             const clean = text.replace(/[，。！？、?!\s\t]/g, ' ');
             const words = clean.split(' ').filter(w => w.length > 0);
-            
             const stopWords = ['請問', '你知道', '是什麼', '怎麼', '什麼', '哪個', '如何', '為甚麼', '為什麼', '嗎', '呢', '啊', '這', '那', '的', '是'];
             let keywords = [];
 
@@ -405,12 +332,9 @@
                 stopWords.forEach(sw => {
                     temp = temp.replace(new RegExp(sw, 'g'), '');
                 });
-                if (temp.length >= 1) {
-                    keywords.push(temp.toLowerCase());
-                }
+                if (temp.length >= 1) keywords.push(temp.toLowerCase());
             });
 
-            // 如果句子較長，自動拆解2字以上的子詞
             if (clean.length > 2) {
                 for (let i = 0; i < clean.length - 1; i++) {
                     const sub = clean.substr(i, 2).toLowerCase();
@@ -419,24 +343,27 @@
                     }
                 }
             }
-
             return Array.from(new Set(keywords));
         }
 
-        // 1. 將不會的問題存入 Firebase 待解區
+        // 存入 Firebase 待解區
         window.saveUnresolvedQuestion = async function(questionText) {
-            const unresolvedRef = ref(db, 'unresolved_questions');
-            const keywords = extractKeywords(questionText);
-            await push(unresolvedRef, {
-                question: questionText,
-                keywords: keywords,
-                status: 'pending',
-                answer: '',
-                createdAt: new Date().toISOString()
-            });
+            try {
+                const unresolvedRef = ref(db, 'unresolved_questions');
+                const keywords = extractKeywords(questionText);
+                await push(unresolvedRef, {
+                    question: questionText,
+                    keywords: keywords,
+                    status: 'pending',
+                    answer: '',
+                    createdAt: new Date().toISOString()
+                });
+            } catch (err) {
+                console.error("Firebase 寫入失敗:", err);
+            }
         };
 
-        // 2. 提供答案並發動關鍵字學習
+        // 解答並發動學習
         window.submitAnswerForQuestion = async function(id, answerText, questionText) {
             if (!answerText.trim()) {
                 alert('請輸入解答！');
@@ -455,14 +382,14 @@
             alert('解答已更新！沙沙AI 已成功提取關鍵字並學習此知識！');
         };
 
-        // 3. 刪除問題/紀錄
+        // 刪除項目
         window.deleteQuestionItem = async function(id) {
             if (confirm('確定要刪除這筆紀錄嗎？')) {
                 await remove(ref(db, `unresolved_questions/${id}`));
             }
         };
 
-        // 4. 手動新增待解問題
+        // 手動新增待解問題
         window.handleManualQuestionAdd = async function() {
             const el = document.getElementById('manualQuestionInput');
             const q = el.value.trim();
@@ -472,9 +399,10 @@
             alert('已成功新增問題至待解區！');
         };
 
-        // 5. 監聽 Firebase 知識庫變更，讓 AI 具備即時檢索能力
+        // 監聽 Firebase 數據並渲染畫面
         window.knownKnowledgeBase = [];
         const unresolvedRef = ref(db, 'unresolved_questions');
+        
         onValue(unresolvedRef, (snapshot) => {
             const data = snapshot.val();
             window.knownKnowledgeBase = [];
@@ -493,12 +421,13 @@
             }
 
             let itemsHtml = '';
-            Object.keys(data).reverse().forEach(key => {
+            const keys = Object.keys(data).reverse();
+
+            keys.forEach(key => {
                 const item = data[key];
                 const isPending = item.status === 'pending';
                 if (isPending) pendingCount++;
 
-                // 收集已解答的知識
                 if (item.status === 'resolved' && item.answer) {
                     window.knownKnowledgeBase.push(item);
                 }
@@ -527,7 +456,7 @@
                         ${isPending ? `
                             <div class="pt-2 flex flex-col space-y-2">
                                 <textarea id="ans-input-${key}" rows="2" placeholder="請提供解答，協助 沙沙AI 學習..." class="p-3 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
-                                <button onclick="submitAnswerForQuestion('${key}', document.getElementById('ans-input-${key}').value, '${escapeHtml(item.question)}')" class="self-end px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium text-xs rounded-xl shadow">
+                                <button onclick="submitAnswerForQuestion('${key}', document.getElementById('ans-input-${key}').value, '${escapeHtml(item.question).replace(/'/g, "\\'")}')" class="self-end px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium text-xs rounded-xl shadow">
                                     提供答案並發動學習
                                 </button>
                             </div>
@@ -710,7 +639,6 @@
             }
         }
 
-        // 搜尋 Firebase 即時學習資料庫
         function searchKnowledgeBase(userInput) {
             if (!window.knownKnowledgeBase || window.knownKnowledgeBase.length === 0) return null;
             
@@ -720,12 +648,9 @@
 
             window.knownKnowledgeBase.forEach(item => {
                 let score = 0;
-                // 完全或局部包含問題
                 if (lowerInput.includes(item.question.toLowerCase())) {
                     score += 10;
                 }
-                
-                // 比對關鍵字
                 if (item.keywords && Array.isArray(item.keywords)) {
                     item.keywords.forEach(kw => {
                         if (kw && lowerInput.includes(kw.toLowerCase())) {
@@ -733,27 +658,23 @@
                         }
                     });
                 }
-
                 if (score > maxScore) {
                     maxScore = score;
                     bestMatch = item;
                 }
             });
 
-            // 需達到一定的匹配分數才算找到答案
             return maxScore >= 2 ? bestMatch : null;
         }
 
         async function getSimulatedChatResponse(input) {
             const lower = input.toLowerCase();
 
-            // 1. 先搜尋學習庫（Firebase已解答問題）
             const matchedKB = searchKnowledgeBase(input);
             if (matchedKB) {
                 return `🎓 **（學習庫回答）**\n\n${matchedKB.answer}`;
             }
 
-            // 2. 預設內建回答
             if (lower.includes('你好') || lower.includes('hi') || lower.includes('hello') || lower.includes('哈囉') || lower.includes('嗨')) {
                 return `你好呀！我是沙沙AI！很高興能和你聊天，今天有什麼我可以幫忙的嗎？`;
             }
@@ -799,7 +720,6 @@ console.log("害入時間是：", getFormattedTime());
 隨時點擊左側的工具選單體驗吧！`;
             }
 
-            // 3. 遇到完全不會的問題：記錄至 Firebase 待解區
             if (window.saveUnresolvedQuestion) {
                 await window.saveUnresolvedQuestion(input);
             }
