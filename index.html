@@ -205,7 +205,7 @@
                     ✨ 請介紹你自己
                 </button>
                 <button onclick="quickSend('寫一段 JavaScript 取得目前時間的函數')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">
-                    💻 駭客JavaScript 程式碼範例
+                    💻 JavaScript 程式碼範例
                 </button>
                 <button onclick="quickSend('推薦三個適合放鬆心靈的國內旅遊景點')" class="px-3 py-1 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-pink-500 dark:hover:border-pink-500 shrink-0 transition-colors">
                     🏞️ 推薦旅遊景點
@@ -393,7 +393,6 @@
         // 提取關鍵字功能 (簡單斷詞與重要詞彙提取)
         function extractKeywords(text) {
             if (!text) return [];
-            // 移除標點符號，將問句字詞過濾
             const clean = text.replace(/[，。！？、?!\s\t]/g, ' ');
             const words = clean.split(' ').filter(w => w.length > 0);
             
@@ -410,7 +409,6 @@
                 }
             });
 
-            // 如果句子較長，自動拆解2字以上的子詞
             if (clean.length > 2) {
                 for (let i = 0; i < clean.length - 1; i++) {
                     const sub = clean.substr(i, 2).toLowerCase();
@@ -498,7 +496,6 @@
                 const isPending = item.status === 'pending';
                 if (isPending) pendingCount++;
 
-                // 收集已解答的知識
                 if (item.status === 'resolved' && item.answer) {
                     window.knownKnowledgeBase.push(item);
                 }
@@ -720,12 +717,10 @@
 
             window.knownKnowledgeBase.forEach(item => {
                 let score = 0;
-                // 完全或局部包含問題
                 if (lowerInput.includes(item.question.toLowerCase())) {
                     score += 10;
                 }
                 
-                // 比對關鍵字
                 if (item.keywords && Array.isArray(item.keywords)) {
                     item.keywords.forEach(kw => {
                         if (kw && lowerInput.includes(kw.toLowerCase())) {
@@ -740,25 +735,22 @@
                 }
             });
 
-            // 需達到一定的匹配分數才算找到答案
             return maxScore >= 2 ? bestMatch : null;
         }
 
         async function getSimulatedChatResponse(input) {
             const lower = input.toLowerCase();
 
-            // 1. 先搜尋學習庫（Firebase已解答問題）
             const matchedKB = searchKnowledgeBase(input);
             if (matchedKB) {
                 return `🎓 **（學習庫回答）**\n\n${matchedKB.answer}`;
             }
 
-            // 2. 預設內建回答
             if (lower.includes('你好') || lower.includes('hi') || lower.includes('hello') || lower.includes('哈囉') || lower.includes('嗨')) {
                 return `你好呀！我是沙沙AI！很高興能和你聊天，今天有什麼我可以幫忙的嗎？`;
             }
             if (lower.includes('程式碼') || lower.includes('code') || lower.includes('python') || lower.includes('javascript') || lower.includes('html')) {
-                return `沒問題！這是沙沙AI為你準備的 駭客JavaScript 實用範例：
+                return `沒問題！這是沙沙AI為你準備的 JavaScript 實用範例：
 
 \`\`\`javascript
 function getFormattedTime() {
@@ -774,7 +766,7 @@ function getFormattedTime() {
     });
 }
 
-console.log("害入時間是：", getFormattedTime());
+console.log("目前時間是：", getFormattedTime());
 \`\`\`
 
 這段程式碼直接貼到瀏覽器的 Console 就可以執行囉！如果需要其他語言也歡迎告訴我！`;
@@ -799,7 +791,6 @@ console.log("害入時間是：", getFormattedTime());
 隨時點擊左側的工具選單體驗吧！`;
             }
 
-            // 3. 遇到完全不會的問題：記錄至 Firebase 待解區
             if (window.saveUnresolvedQuestion) {
                 await window.saveUnresolvedQuestion(input);
             }
